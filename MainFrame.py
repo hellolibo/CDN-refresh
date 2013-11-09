@@ -3,6 +3,7 @@
 from Tkinter import *
 import Tkconstants
 
+from CDN import *
 
 __version__="0.1"
 __author__ = "libo"
@@ -13,7 +14,6 @@ class App:
 
     def __init__(self, master):
 
-        self.CDN = CDN(self.progress)
 
         master.title(u'CDN刷新工具')
         master.resizable(False, False)
