@@ -5,11 +5,6 @@ import Tkconstants
 
 from CDN import *
 
-__version__="0.1"
-__author__ = "libo"
-__email__ = "hellolibo@gmail.com"
-
-
 class App:
 
     def __init__(self, master):
