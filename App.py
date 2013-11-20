@@ -1,24 +1,28 @@
 # -*- coding: utf-8 -*- 
 
-from CDN import WS
+from Tkinter import *
+import Tkconstants
+
 import Config
-import MainFrame
+import CDN
+import UI
 
 class CDNRefreshApp:
 
     def __init__(self):
 
-        # self.config = Config()
-        # self.mainFrame = MainFrame()
+        Config.init(CDN.list)
 
-        # self.mainFrame.run()
+    def run(self):
 
-        print WS()
+        root = Tk()
+        app = UI.MainFrame(root, Config, CDN)
+        root.mainloop()
 
 
 def main():
 
-    CDNRefreshApp()
+    CDNRefreshApp().run()
 
 
 if __name__ == '__main__':

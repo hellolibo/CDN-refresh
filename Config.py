@@ -2,8 +2,13 @@
 
 import os
 
-class Config:
 
-    def __init__(self):
-        
-        self.user_home = os.path.expanduser("~")
+user_home = os.path.expanduser("~")
+
+
+def init(list):
+    pass
+
+
+def on():
+    pass
