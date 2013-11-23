@@ -1,4 +1,1 @@
-list = ('WS')
-
-def get(filter):
-    pass
+__all__ = ['CDNFactory']
