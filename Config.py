@@ -27,6 +27,8 @@ def update():
 
     configFile.close()
 
+
+
 def getAccount(CDNId):
     _validCDN = [c for c in validCDN if c[0] == CDNId]
     return len(_validCDN) > 0 and _validCDN[0][1:] or None

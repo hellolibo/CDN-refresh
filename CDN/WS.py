@@ -73,7 +73,8 @@ class WS:
 
         for i in range(length):
 
-            url = urls[i]
+            # WS的URL是不需要http://的
+            url = re.sub(r'^http:\/\/', '', urls[i])
             
             if len(str) + len(url) >= self._urlMaxLength: 
                 group.append(urls[start:i+1])

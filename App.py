@@ -3,6 +3,7 @@
 import re
 
 from Tkinter import *
+from ttk import *
 import Tkconstants
 import tkSimpleDialog
 
@@ -12,44 +13,57 @@ from CDN import *
 class MainFrame:
 
     def __init__(self, master):
-
-        self.allCDN = CDNFactory.all()
         
         Config.update()
 
-        self.initFrame(master)
-        self.initMenu(master)
+        self.master = master
+
+        self.initFrame()
+        self.initMenu()
         self.updateCDNList()
         self.bindEvent()
 
-    def initFrame(self, master):
+    def initFrame(self):
 
-        master.title(u'CDN刷新工具')
-        master.resizable(False, False)
+        self.master.title(u'CDN刷新工具')
+        self.master.resizable(False, False)
+
+        Style().theme_settings("default", {
+           "TLabelFrame": {
+               "configure": {"padding": 5}
+           },
+           "TFrame": {
+                "configure": {"padding": 10}
+           },
+           "tip.TLabel": {
+                "configure": {"foreground": '#999999'}
+           }
+        })
+
 
         # 服务商
-        self.cdnGroup = LabelFrame(master, text="CDN服务商", padx=5, pady=5)
+        self.cdnGroup = LabelFrame(self.master, text="CDN服务商")
         self.cdnGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.currentCDN = StringVar()
         self.currentCDN.set('')
 
         # 刷新类型
-        self.supportGroup = LabelFrame(master, text="刷新类型", padx=5, pady=5)
+        self.supportGroup = LabelFrame(self.master, text="刷新类型")
         self.supportGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.currentSupport = StringVar()
         self.currentSupport.set("")
 
         # 刷新内容
-        self.contentGroup = LabelFrame(master, text="刷新内容", padx=5, pady=5)
+        self.contentGroup = LabelFrame(self.master, text="刷新内容")
         self.contentGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.pushContentText = Text(self.contentGroup, bg = "#ffffff", height=10, width=50)
         self.pushContentText.grid(row = 0,column = 1, padx = 5, pady = 5)
 
         # 返回结果
-        returnGroup = LabelFrame(master, text="刷新结果", padx=5, pady=5)
+        returnGroup = LabelFrame(self.master, text="刷新结果")
         scrollbar = Scrollbar(returnGroup)
         scrollbar.pack(side=RIGHT, fill=Y)
         returnGroup.pack(padx=10, pady=10, fill=BOTH)
@@ -60,20 +74,20 @@ class MainFrame:
         self.pushReturnText.pack()
 
         # 刷新按钮
-        frame = Frame(master, padx = 10, pady = 10)
+        frame = Frame(self.master)
         frame.pack()
 
         self.pushBtn = Button(frame, text="刷新", width=20)
         self.pushBtn.grid(row = 0,column = 1, padx = 5, pady = 10)
 
-    def initMenu(self, master):
-        menubar = Menu(master)
+    def initMenu(self):
+        menubar = Menu(self.master)
         menubar.add_command(label="服务商设置", command=self.menuSetCDN)
         menubar.add_command(label="关于软件", command=self.menuAbout)
-        master.config(menu=menubar)
+        self.master.config(menu=menubar)
 
     def menuSetCDN(self):
-        pass
+        CDNManageFrame(self.master, self.onCDNManageClose)
 
     def menuAbout(self):
         pass
@@ -95,7 +109,7 @@ class MainFrame:
                     self.updateSupportList()
                 i = i + 1
         else:
-            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', fg='#999999').grid(row = 0,column = 0, padx = 5, pady = 5)
+            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').grid(row = 0,column = 0, padx = 5, pady = 5)
 
     def updateSupportList(self):
 
@@ -115,9 +129,10 @@ class MainFrame:
             pass
 
     def bindEvent(self):
-
         self.pushBtn.bind('<Button-1>', self.onPush)
 
+    def onCDNManageClose():
+        self.updateCDNList()
 
     def onPush(self, event):
 
@@ -129,7 +144,7 @@ class MainFrame:
 
         self.pushBtn.config(state =  DISABLED)
 
-        content = [re.sub(r'^http:\/\/', '', line) for line in self.pushContentText.get(0.0,END).split("\n") if line.strip() != ""]
+        content = [line for line in self.pushContentText.get(0.0,END).split("\n") if line.strip() != ""]
 
         CDN = CDNFactory.get(CDNId, Config.getAccount(CDNId))
 
@@ -139,13 +154,13 @@ class MainFrame:
 
 
     def onSelectedCDN(self, event):
-
         self.updateSupportList()
 
         
     def getValidCDN(self):
+        allCDN = CDNFactory.all()
         if len(Config.validCDN) > 0:
-            return [a for v in Config.validCDN for a in self.allCDN if v[0] == a['id']]
+            return [a for v in Config.validCDN for a in allCDN if v[0] == a['id']]
         else:
             return None
 
@@ -154,6 +169,33 @@ class MainFrame:
         cdn = filter(lambda cdn:cdn['id'] == CDNId, self.getValidCDN())
         return len(cdn) > 0 and cdn[0]['support'] or None
 
+
+class CDNManageFrame:
+
+    def __init__(self, parent, onClose = None):
+        top = self.top = Toplevel(parent)
+        top.grab_set()
+        top.title(u"设置CDN服务商帐号")
+
+        self.currentCDN = StringVar()
+        self.currentCDN.set('')
+
+        self.CDNSer = Combobox(top, textvariable= self.currentCDN, state="readonly")
+        self.CDNSer['values'] = ("a", "b", "c")
+        self.CDNSer.grid(row=0, column=1, padx = 10, pady = 10)
+
+        Label(top, text=u"服 务 商:").grid(row=0, padx = 10, pady = 10)
+        Label(top, text=u"刷新帐号:").grid(row=1, padx = 10, pady = 10)
+        Label(top, text=u"刷新密码:").grid(row=2, padx = 10, pady = 10)
+
+        self.usename = Entry(top)
+        self.password = Entry(top)
+
+        self.usename.grid(row=1, column=1, padx = 10, pady = 10)
+        self.password.grid(row=2, column=1, padx = 10, pady = 10)
+
+        self.ok = Button(top, text="确认", width=15)
+        self.ok.grid(row = 3,column = 0, columnspan=2, padx = 5, pady = 10)
         
 def run():
 
