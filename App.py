@@ -93,7 +93,6 @@ class MainFrame:
         pass
     
     def updateCDNList(self):
-        
         for child in self.cdnGroup.pack_slaves():
             child.destroy()
 
@@ -102,17 +101,17 @@ class MainFrame:
             i = 0
             for cdn in validCDN:
                 radio = Radiobutton(self.cdnGroup, text=cdn['name'], variable=self.currentCDN, value=cdn['id'])
-                radio.grid(row = 0,column = i, padx = 5, pady = 5)
                 radio.bind('<Button-1>', self.onSelectedCDN)
+                radio.pack(side=LEFT)
+                radio.grid(row = 0,column = i, padx = 5, pady = 5)
                 if i == 0 :
-                    radio.select()
+                    radio.invoke()
                     self.updateSupportList()
                 i = i + 1
         else:
-            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').grid(row = 0,column = 0, padx = 5, pady = 5)
+            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').grid(row = 0,column = 0, padx = 5, pady = 5).pack()
 
     def updateSupportList(self):
-
         for child in self.supportGroup.pack_slaves():
             child.destroy()
 
@@ -121,12 +120,13 @@ class MainFrame:
             i = 0
             for support in supports:
                 radio = Radiobutton(self.supportGroup, text=support[1], variable=self.currentSupport, value=support[0])
+                radio.pack(side=LEFT)
                 radio.grid(row = 0,column = i, padx = 5, pady = 5)
                 if i == 0 :
-                    radio.select()
+                    radio.invoke()
                 i = i + 1
         else:
-            pass
+            Label(self.supportGroup, text=u'请先选择服务商', style='tip.TLabel').grid(row = 0,column = 0, padx = 5, pady = 5)
 
     def bindEvent(self):
         self.pushBtn.bind('<Button-1>', self.onPush)
