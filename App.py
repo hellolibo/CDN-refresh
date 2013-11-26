@@ -108,7 +108,7 @@ class MainFrame:
                     self.updateSupportList()
                 i = i + 1
         else:
-            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').grid(row = 0,column = 0, padx = 5, pady = 5).pack()
+            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').pack()
 
     def updateSupportList(self):
         for child in self.supportGroup.pack_slaves():
@@ -130,7 +130,7 @@ class MainFrame:
     def bindEvent(self):
         self.pushBtn.bind('<Button-1>', self.onPush)
 
-    def onCDNManageClose():
+    def onCDNManageClose(self):
         self.updateCDNList()
 
     def onPush(self, event):
@@ -178,6 +178,8 @@ class CDNManageFrame:
         top.resizable(False, False)
         top.title(u"设置CDN服务商帐号")
 
+        self.closeCallback = onClose
+
         self.CDNSerList = Combobox(top, state="readonly")
         self.CDNSerList['values'] = [cdn['name'] for cdn in CDNFactory.all()]
         self.CDNSerList.grid(row=0, column=1, padx = 10, pady = 10, sticky=W)
@@ -202,6 +204,11 @@ class CDNManageFrame:
     def bindEvent(self):
         self.CDNSerList.bind('<<ComboboxSelected>>', self.onSelectedCDN)
         self.ok.bind('<Button-1>', self.onSave)
+        self.top.protocol("WM_DELETE_WINDOW", self.onCloseManage)
+
+    def onCloseManage(self):
+        self.closeCallback()
+        self.top.destroy()
 
     def onSave(self, event):
         allCDN = CDNFactory.all()
