@@ -10,7 +10,8 @@ configFileName = '.CDNConfig'
 
 configFilePath = '%s/%s'%(user_home, configFileName)
 
-def update():
+
+def init():
     
     global validCDN
 
@@ -32,3 +33,22 @@ def update():
 def getAccount(CDNId):
     _validCDN = [c for c in validCDN if c[0] == CDNId]
     return len(_validCDN) > 0 and _validCDN[0][1:] or None
+
+def saveAccount(CDNId, username, password):
+    exist = False
+    for cdn in validCDN:
+        if cdn[0] == CDNId:
+            cdn[1] = username
+            cdn[2] = password
+            exist = True
+    if not exist:
+        validCDN.append([CDNId, username, password])
+
+    configFile = open(configFilePath, 'w')
+    configFile.write('\n'.join([' '.join(cdn) for cdn in validCDN]))
+    configFile.close()
+
+
+
+
+

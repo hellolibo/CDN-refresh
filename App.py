@@ -14,7 +14,7 @@ class MainFrame:
 
     def __init__(self, master):
         
-        Config.update()
+        Config.init()
 
         self.master = master
 
@@ -69,9 +69,8 @@ class MainFrame:
         returnGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.pushReturnText = Text(returnGroup, bg = "#000000", fg="#45b100", height=5, width=50, state = DISABLED, yscrollcommand=scrollbar.set)
-        self.pushReturnText.grid(row = 0,column = 1, padx = 5, pady = 5)
         scrollbar.config(command=self.pushReturnText.yview)
-        self.pushReturnText.pack()
+        self.pushReturnText.pack(pady=5, padx=5)
 
         # 刷新按钮
         frame = Frame(self.master)
@@ -173,29 +172,68 @@ class MainFrame:
 class CDNManageFrame:
 
     def __init__(self, parent, onClose = None):
+
         top = self.top = Toplevel(parent)
         top.grab_set()
+        top.resizable(False, False)
         top.title(u"设置CDN服务商帐号")
 
-        self.currentCDN = StringVar()
-        self.currentCDN.set('')
+        self.CDNSerList = Combobox(top, state="readonly")
+        self.CDNSerList['values'] = [cdn['name'] for cdn in CDNFactory.all()]
+        self.CDNSerList.grid(row=0, column=1, padx = 10, pady = 10, sticky=W)
 
-        self.CDNSer = Combobox(top, textvariable= self.currentCDN, state="readonly")
-        self.CDNSer['values'] = ("a", "b", "c")
-        self.CDNSer.grid(row=0, column=1, padx = 10, pady = 10)
+        Label(top, text=u"服务商").grid(row=0, padx = 10, pady = 10, sticky=E)
+        Label(top, text=u"刷新帐号").grid(row=1, padx = 10, pady = 10, sticky=E)
+        Label(top, text=u"刷新密码").grid(row=2, padx = 10, pady = 10, sticky=E)
 
-        Label(top, text=u"服 务 商:").grid(row=0, padx = 10, pady = 10)
-        Label(top, text=u"刷新帐号:").grid(row=1, padx = 10, pady = 10)
-        Label(top, text=u"刷新密码:").grid(row=2, padx = 10, pady = 10)
+        self.username = StringVar()
+        self.username.set('')
+        self.password = StringVar()
+        self.password.set('')
 
-        self.usename = Entry(top)
-        self.password = Entry(top)
+        Entry(top, textvariable=self.username).grid(row=1, column=1, padx = 10, pady = 10, sticky=W+E+N+S)
+        Entry(top, textvariable=self.password).grid(row=2, column=1, padx = 10, pady = 10, sticky=W+E+N+S)
 
-        self.usename.grid(row=1, column=1, padx = 10, pady = 10)
-        self.password.grid(row=2, column=1, padx = 10, pady = 10)
-
-        self.ok = Button(top, text="确认", width=15)
+        self.ok = Button(top, text=u"保存", width=15)
         self.ok.grid(row = 3,column = 0, columnspan=2, padx = 5, pady = 10)
+
+        self.bindEvent()
+
+    def bindEvent(self):
+        self.CDNSerList.bind('<<ComboboxSelected>>', self.onSelectedCDN)
+        self.ok.bind('<Button-1>', self.onSave)
+
+    def onSave(self, event):
+        allCDN = CDNFactory.all()
+        index = self.CDNSerList.current()
+        if index < 0:
+            return
+
+        username = self.username.get()
+        password = self.password.get()
+        cdnId = allCDN[index]['id']
+
+        if username != '' and password != '':
+            self.ok.config(state =  DISABLED)
+            Config.saveAccount(cdnId, username, password)
+            self.ok.config(state =  ACTIVE)
+
+
+    def onSelectedCDN(self, evnet):
+        allCDN = CDNFactory.all()
+        index = self.CDNSerList.current()
+        username = password = ''
+
+        if index > -1:
+            cdnId = allCDN[index]['id']
+            account = Config.getAccount(cdnId)
+            if account:
+                username = account[0]
+                password = account[1]
+
+        self.username.set(username)
+        self.password.set(password)
+
         
 def run():
 

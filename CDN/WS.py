@@ -61,6 +61,7 @@ class WS:
         
         print 'start push...'
         print url + dir
+        print 'Push Data -> ' + push_url
         print urllib2.urlopen(push_url).read()
 
     
@@ -71,10 +72,12 @@ class WS:
         start = 0
         str = ''
 
-        for i in range(length):
+        # WS的URL是不需要http://的
+        urls = [re.sub(r'^http:\/\/', '', u) for u in urls]
 
-            # WS的URL是不需要http://的
-            url = re.sub(r'^http:\/\/', '', urls[i])
+        for i in range(length):
+            
+            url = urls[i]
             
             if len(str) + len(url) >= self._urlMaxLength: 
                 group.append(urls[start:i+1])
@@ -104,5 +107,5 @@ if __name__ == '__main__':
     
     ws = WS('mbbimg', '123!@#qwe')
     ws.url(['cdn01.mbbimg.cn/1407/14070052/02/60/04.jpg'])
-    # ws.dir(['cdn01.mbbimg.cn/1407/14070052/02/60/'])
-    # ws.sku(['1407005202'])
+    ws.dir(['cdn01.mbbimg.cn/1407/14070052/02/60/'])
+    ws.sku(['1407005202'])
