@@ -101,8 +101,8 @@ class MainFrame:
             for cdn in validCDN:
                 radio = Radiobutton(self.cdnGroup, text=cdn['name'], variable=self.currentCDN, value=cdn['id'])
                 radio.bind('<Button-1>', self.onSelectedCDN)
-                radio.pack(side=LEFT)
-                radio.grid(row = 0,column = i, padx = 5, pady = 5)
+                radio.pack(side=LEFT ,padx = 5, pady = 5)
+                # radio.grid(row = 0,column = i, )
                 if i == 0 :
                     radio.invoke()
                     self.updateSupportList()
@@ -111,6 +111,7 @@ class MainFrame:
             Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').pack()
 
     def updateSupportList(self):
+        print self.supportGroup.pack_slaves()
         for child in self.supportGroup.pack_slaves():
             child.destroy()
 
@@ -119,8 +120,8 @@ class MainFrame:
             i = 0
             for support in supports:
                 radio = Radiobutton(self.supportGroup, text=support[1], variable=self.currentSupport, value=support[0])
-                radio.pack(side=LEFT)
-                radio.grid(row = 0,column = i, padx = 5, pady = 5)
+                radio.pack(side=LEFT, padx = 5, pady = 5)
+                # radio.grid(row = 0,column = i)
                 if i == 0 :
                     radio.invoke()
                 i = i + 1

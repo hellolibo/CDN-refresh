@@ -9,9 +9,6 @@ class WS:
 
     u'网宿'
 
-    # cdn0*.mbbimg.cn
-    _cdnDomainId = range(1,10)
-
     # url地址的最大长度
     _urlMaxLength = 8000
 
@@ -35,16 +32,6 @@ class WS:
         dirs = self._groupUrl(arr)
         for d in dirs:
             self._push(dir = d)
-
-    def sku(self, skus = []):
-        u'静物图'
-        dirs = self._skuToPicDir(skus)
-        self.dir(dirs)
-
-
-    def model(self, sku):
-        u'模特物'
-        pass
 
 
     def _push(self, url=[], dir=[]):
@@ -91,22 +78,7 @@ class WS:
 
         return group
 
-    # sku转换成目录url
-    def _skuToPicDir(self, skus = []):
-
-        urls = []
-        for skuDir in ["%s/%s/%s/" % (sku[:4],sku[:8],sku[8:]) for sku in skus]:
-            urls = urls + ['cdn0%s.mbbimg.cn/%s' % (id,skuDir) for id in self._cdnDomainId]
-        return urls
-
     def _md5(self, str):
         m = hashlib.md5()   
         m.update(str)
         return m.hexdigest()
-
-if __name__ == '__main__':
-    
-    ws = WS('mbbimg', '123!@#qwe')
-    ws.url(['cdn01.mbbimg.cn/1407/14070052/02/60/04.jpg'])
-    ws.dir(['cdn01.mbbimg.cn/1407/14070052/02/60/'])
-    ws.sku(['1407005202'])
