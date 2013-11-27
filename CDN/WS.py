@@ -34,12 +34,13 @@ class WS:
         u'目录'
         dirs = self._groupUrl(arr)
         for d in dirs:
-            self._push(url = d)
+            self._push(dir = d)
 
     def sku(self, skus = []):
         u'静物图'
         dirs = self._skuToPicDir(skus)
         self.dir(dirs)
+
 
     def model(self, sku):
         u'模特物'
