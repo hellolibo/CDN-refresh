@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-  
 
 import re
+import sys
 
 from Tkinter import *
 from ttk import *
@@ -9,6 +10,7 @@ import tkSimpleDialog
 
 import Config
 from CDN import *
+
 
 class MainFrame:
 
@@ -23,10 +25,15 @@ class MainFrame:
         self.updateCDNList()
         self.bindEvent()
 
+        self.old_stdout  =  sys.stdout
+
     def initFrame(self):
 
         self.master.title(u'CDN刷新工具')
         self.master.resizable(False, False)
+        self.master.maxsize(450, 700)
+        self.master.iconbitmap('img/logo.ico')
+
 
         Style().theme_settings("default", {
            "TLabelFrame": {
@@ -59,8 +66,8 @@ class MainFrame:
         self.contentGroup = LabelFrame(self.master, text="刷新内容")
         self.contentGroup.pack(padx=10, pady=10, fill=BOTH)
 
-        self.pushContentText = Text(self.contentGroup, bg = "#ffffff", height=10, width=50)
-        self.pushContentText.grid(row = 0,column = 1, padx = 5, pady = 5)
+        self.pushContentText = Text(self.contentGroup, bg = "#ffffff", height=10)
+        self.pushContentText.pack(fill=BOTH, padx = 5, pady = 5)
 
         # 返回结果
         returnGroup = LabelFrame(self.master, text="刷新结果")
@@ -68,9 +75,11 @@ class MainFrame:
         scrollbar.pack(side=RIGHT, fill=Y)
         returnGroup.pack(padx=10, pady=10, fill=BOTH)
 
-        self.pushReturnText = Text(returnGroup, bg = "#000000", fg="#45b100", height=5, width=50, state = DISABLED, yscrollcommand=scrollbar.set)
+        self.pushReturnText = Text(returnGroup, bg = "#000000", fg="#45b100", height=5, state = DISABLED, yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.pushReturnText.yview)
-        self.pushReturnText.pack(pady=5, padx=5)
+        self.pushReturnText.pack(fill=BOTH, pady=5, padx=5)
+
+        sys.stdout = StdoutRedirector(self.pushReturnText)
 
         # 刷新按钮
         frame = Frame(self.master)
@@ -82,54 +91,50 @@ class MainFrame:
     def initMenu(self):
         menubar = Menu(self.master)
         menubar.add_command(label="服务商设置", command=self.menuSetCDN)
-        menubar.add_command(label="关于软件", command=self.menuAbout)
         self.master.config(menu=menubar)
 
     def menuSetCDN(self):
         CDNManageFrame(self.master, self.onCDNManageClose)
 
-    def menuAbout(self):
-        pass
-    
     def updateCDNList(self):
         for child in self.cdnGroup.pack_slaves():
             child.destroy()
 
         validCDN = self.getValidCDN()
         if validCDN :
-            i = 0
+            frist = True
             for cdn in validCDN:
-                radio = Radiobutton(self.cdnGroup, text=cdn['name'], variable=self.currentCDN, value=cdn['id'])
-                radio.bind('<Button-1>', self.onSelectedCDN)
+                radio = Radiobutton(self.cdnGroup, text=cdn['name'], variable=self.currentCDN, value=cdn['id'], command=self.onSelectedCDN)
                 radio.pack(side=LEFT ,padx = 5, pady = 5)
-                # radio.grid(row = 0,column = i, )
-                if i == 0 :
+                if frist :
                     radio.invoke()
-                    self.updateSupportList()
-                i = i + 1
+                    frist = False
         else:
             Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').pack()
 
     def updateSupportList(self):
-        print self.supportGroup.pack_slaves()
         for child in self.supportGroup.pack_slaves():
             child.destroy()
 
         supports = self.getValidSupport()
         if supports :
-            i = 0
+            frist = True
             for support in supports:
                 radio = Radiobutton(self.supportGroup, text=support[1], variable=self.currentSupport, value=support[0])
                 radio.pack(side=LEFT, padx = 5, pady = 5)
-                # radio.grid(row = 0,column = i)
-                if i == 0 :
+                if frist :
                     radio.invoke()
-                i = i + 1
+                    frist = False
         else:
             Label(self.supportGroup, text=u'请先选择服务商', style='tip.TLabel').grid(row = 0,column = 0, padx = 5, pady = 5)
 
     def bindEvent(self):
-        self.pushBtn.bind('<Button-1>', self.onPush)
+        self.pushBtn.bind('<ButtonRelease-1>', self.onPush)
+        self.master.protocol("WM_DELETE_WINDOW", self.onCloseMainFrame)
+
+    def onCloseMainFrame(self):
+        sys.stdout = self.old_stdout
+        self.master.destroy()
 
     def onCDNManageClose(self):
         self.updateCDNList()
@@ -153,7 +158,7 @@ class MainFrame:
         self.pushBtn.config(state =  ACTIVE)
 
 
-    def onSelectedCDN(self, event):
+    def onSelectedCDN(self):
         self.updateSupportList()
 
         
@@ -204,7 +209,7 @@ class CDNManageFrame:
 
     def bindEvent(self):
         self.CDNSerList.bind('<<ComboboxSelected>>', self.onSelectedCDN)
-        self.ok.bind('<Button-1>', self.onSave)
+        self.ok.bind('<ButtonRelease-1>', self.onSave)
         self.top.protocol("WM_DELETE_WINDOW", self.onCloseManage)
 
     def onCloseManage(self):
@@ -226,6 +231,7 @@ class CDNManageFrame:
             Config.saveAccount(cdnId, username, password)
             self.ok.config(state =  ACTIVE)
 
+            self.onCloseManage()
 
     def onSelectedCDN(self, evnet):
         allCDN = CDNFactory.all()
@@ -242,6 +248,16 @@ class CDNManageFrame:
         self.username.set(username)
         self.password.set(password)
 
+
+class StdoutRedirector(object):
+    def __init__(self, text_widget):
+        self.text_space = text_widget
+
+    def write(self, string):
+        self.text_space.config(state = NORMAL)
+        self.text_space.insert('end', string)
+        self.text_space.see('end')
+        self.text_space.config(state = DISABLED)
         
 def run():
 

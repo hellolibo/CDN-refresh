@@ -47,10 +47,10 @@ class WS:
                         ";".join(dir)
                     )
         
-        print 'start push...'
-        print url + dir
+        print 'Start Push:'
         print 'Push Data -> ' + push_url
         print urllib2.urlopen(push_url).read()
+        print '\n'
 
     
     # 防止URL过长需对提交的url分组后刷新
