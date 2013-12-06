@@ -34,20 +34,6 @@ class MainFrame:
         self.master.maxsize(450, 700)
         self.master.iconbitmap('img/logo.ico')
 
-
-        Style().theme_settings("default", {
-           "TLabelFrame": {
-               "configure": {"padding": 5}
-           },
-           "TFrame": {
-                "configure": {"padding": 10}
-           },
-           "tip.TLabel": {
-                "configure": {"foreground": '#999999'}
-           }
-        })
-
-
         # 服务商
         self.cdnGroup = LabelFrame(self.master, text="CDN服务商")
         self.cdnGroup.pack(padx=10, pady=10, fill=BOTH)
@@ -62,12 +48,16 @@ class MainFrame:
         self.currentSupport = StringVar()
         self.currentSupport.set("")
 
+        self.currentSupportCaption = StringVar()
+        self.currentSupportCaption.set("")
+
         # 刷新内容
         self.contentGroup = LabelFrame(self.master, text="刷新内容")
         self.contentGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.pushContentText = Text(self.contentGroup, bg = "#ffffff", height=10)
         self.pushContentText.pack(fill=BOTH, padx = 5, pady = 5)
+        Label(self.contentGroup, style='tip.TLabel', textvariable=self.currentSupportCaption).pack(side=LEFT, pady = 5, padx=5)
 
         # 返回结果
         returnGroup = LabelFrame(self.master, text="刷新结果")
@@ -110,7 +100,8 @@ class MainFrame:
                     radio.invoke()
                     frist = False
         else:
-            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').pack()
+            Label(self.cdnGroup, text=u'请先从菜单中设置服务商', style='tip.TLabel').pack(pady = 10)
+            self.updateSupportList()
 
     def updateSupportList(self):
         for child in self.supportGroup.pack_slaves():
@@ -120,13 +111,13 @@ class MainFrame:
         if supports :
             frist = True
             for support in supports:
-                radio = Radiobutton(self.supportGroup, text=support[1], variable=self.currentSupport, value=support[0])
+                radio = Radiobutton(self.supportGroup, text=support[1], variable=self.currentSupport, value=support[0], command=self.onSelectedSupport)
                 radio.pack(side=LEFT, padx = 5, pady = 5)
                 if frist :
                     radio.invoke()
                     frist = False
         else:
-            Label(self.supportGroup, text=u'请先选择服务商', style='tip.TLabel').grid(row = 0,column = 0, padx = 5, pady = 5)
+            Label(self.supportGroup, text=u'请先选择服务商', style='tip.TLabel').pack(pady = 10)
 
     def bindEvent(self):
         self.pushBtn.bind('<ButtonRelease-1>', self.onPush)
@@ -161,6 +152,13 @@ class MainFrame:
     def onSelectedCDN(self):
         self.updateSupportList()
 
+    def onSelectedSupport(self):
+        supports = self.getValidSupport()
+        curSupport = self.currentSupport.get()
+        for s in supports:
+            if s[0] == curSupport:
+                return self.currentSupportCaption.set(s[2])
+
         
     def getValidCDN(self):
         allCDN = CDNFactory.all()
@@ -183,6 +181,7 @@ class CDNManageFrame:
         top.grab_set()
         top.resizable(False, False)
         top.title(u"设置CDN服务商帐号")
+        top.iconbitmap('img/logo.ico')
 
         self.closeCallback = onClose
 

@@ -5,34 +5,36 @@ import urllib2
 import hashlib
 import re
 
-class WS:
 
-    u'网宿'
+class WS(object):
 
-    # url地址的最大长度
-    _urlMaxLength = 8000
+    def __init__(self):
 
-    _API = 'http://wscp.lxdns.com:8080/wsCP/servlet/contReceiver?username=%s&passwd=%s&url=%s&dir=%s&delaytime=0'
+        self.id = 'ws'
+        self.name = u'网宿'
+        self.support = [
+            ('url', u'网址', u'http开头的网址,例如: http://www.yourdomain.com/path/to/pic.jpg'),
+            ('dir', u'目录', u'http开头的目录,例如: http://www.yourdomain.com/path/to/')
+            ]
 
+        # url地址的最大长度
+        self.urlMaxLength = 8000
+        self.API = 'http://wscp.lxdns.com:8080/wsCP/servlet/contReceiver?username=%s&passwd=%s&url=%s&dir=%s&delaytime=0'
 
-    def __init__(self, username='', password=''):
-
+    def open(self, username='', password=''):
         self.username = username
         self.password = password
+        return self
 
     def url(self, arr = []):
-        u'网址'
         urls = self._groupUrl(arr)
         for u in urls:
             self._push(url = u)
 
-
     def dir(self, arr = []):
-        u'目录'
         dirs = self._groupUrl(arr)
         for d in dirs:
             self._push(dir = d)
-
 
     def _push(self, url=[], dir=[]):
 
@@ -40,14 +42,13 @@ class WS:
             print 'lost url and dir.'
             return
 
-        push_url = self._API%(
+        push_url = self.API%(
                         self.username,
                         self._md5(self.username+self.password+";".join(url)+";".join(dir)),
                         ";".join(url),
                         ";".join(dir)
                     )
         
-        print 'Start Push:'
         print 'Push Data -> ' + push_url
         print urllib2.urlopen(push_url).read()
         print '\n'
@@ -67,7 +68,7 @@ class WS:
             
             url = urls[i]
             
-            if len(str) + len(url) >= self._urlMaxLength: 
+            if len(str) + len(url) >= self.urlMaxLength: 
                 group.append(urls[start:i+1])
                 str = url
                 start = i + 1
@@ -82,3 +83,8 @@ class WS:
         m = hashlib.md5()   
         m.update(str)
         return m.hexdigest()
+
+if __name__ == '__main__':
+    
+    ws = WS()
+    print ws.support

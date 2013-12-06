@@ -3,26 +3,24 @@
 from WS import WS
 from MBB_WS import MBB_WS
 
+ws = WS()
+mbb_ws = MBB_WS()
+
+cdns = [ws, mbb_ws]
+
 def get(CDNId, account):
-
-    if CDNId == 'WS':
-        print account
-        return WS(account[0], account[1])
-
-    elif CDNId == 'MBB_WS':
-        return MBB_WS(account[0], account[1])
-
-    else:
-        return None
+    for cdn in cdns:
+        if cdn.id == CDNId:
+            return cdn.open(account[0], account[1])
+    return None
 
 def all():
-    cdns = [WS, MBB_WS]
     cdnInfo = []
     for cdn in cdns:
         cdnInfo.append({
-            'id'      : cdn.__name__,
-            'name'    : cdn.__doc__,
-            'support' : [ (fun, getattr(cdn, fun).__doc__) for fun in [m for m in dir(cdn) if m[0] != '_'] ]
+            'id'      : cdn.id,
+            'name'    : cdn.name,
+            'support' : cdn.support
             })
 
     return cdnInfo
