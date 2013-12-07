@@ -6,4 +6,6 @@ CDN refresh tool
 
 #打包
 
-pyinstaller.py -w -F --name=MBBCDN --icon=D:\\myGitHub\\CDN-refresh\\img\\logo.ico --distpath=D:\\myGitHub\\CDN-refresh\\dist D:\\myGitHub\\CDN-refresh\\App.py
+##pyinstaller
+
+python pyinstaller.py -w -F --name=CDN-refresh --icon=path\\to\\logo.ico --distpath=\\dist path\\to\\App.py  (不支持中文文件名与路径)

@@ -6,9 +6,8 @@
 # Packages
 *.egg
 *.egg-info
-dist
-build
 eggs
+dist
 parts
 bin
 var

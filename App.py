@@ -2,6 +2,7 @@
 
 import re
 import sys
+import os
 
 from Tkinter import *
 from ttk import *
@@ -10,7 +11,6 @@ import tkSimpleDialog
 
 import Config
 from CDN import *
-
 
 class MainFrame:
 
@@ -32,7 +32,7 @@ class MainFrame:
         self.master.title(u'CDN刷新工具')
         self.master.resizable(False, False)
         self.master.maxsize(450, 700)
-        self.master.iconbitmap('img/logo.ico')
+        # self.master.iconbitmap("logo.ico")
 
         # 服务商
         self.cdnGroup = LabelFrame(self.master, text="CDN服务商")
@@ -169,7 +169,8 @@ class MainFrame:
 
     def getValidSupport(self):
         CDNId = self.currentCDN.get()
-        cdn = filter(lambda cdn:cdn['id'] == CDNId, self.getValidCDN())
+        CDNS = self.getValidCDN()
+        cdn = CDNS and filter(lambda cdn:cdn['id'] == CDNId, CDNS) or []
         return len(cdn) > 0 and cdn[0]['support'] or None
 
 
@@ -181,7 +182,7 @@ class CDNManageFrame:
         top.grab_set()
         top.resizable(False, False)
         top.title(u"设置CDN服务商帐号")
-        top.iconbitmap('img/logo.ico')
+        # top.iconbitmap("logo.ico")
 
         self.closeCallback = onClose
 
