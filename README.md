@@ -8,4 +8,4 @@ CDN refresh tool
 
 ##pyinstaller
 
-python pyinstaller.py -w -F --name=CDN-refresh --icon=path\\to\\logo.ico --distpath=\\dist path\\to\\App.py  (不支持中文文件名与路径)
+ python pyinstaller.py -w -F --name=CDN-refresh --icon=d:\\myGitHub\\CDN-refreh\\logo.ico --distpath=d:\\myGitHub\\CDN-refresh\\dist d:\\myGitHub\\CDN-refreh\\App.py

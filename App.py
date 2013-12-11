@@ -9,15 +9,16 @@ from ttk import *
 import Tkconstants
 import tkSimpleDialog
 
-import Config
+from Config import Config
 from CDN import *
+
+cfg = Config()
+cfg.init()
 
 class MainFrame:
 
     def __init__(self, master):
         
-        Config.init()
-
         self.master = master
 
         self.initFrame()
@@ -35,14 +36,14 @@ class MainFrame:
         # self.master.iconbitmap("logo.ico")
 
         # 服务商
-        self.cdnGroup = LabelFrame(self.master, text="CDN服务商")
+        self.cdnGroup = LabelFrame(self.master, text=u"CDN服务商")
         self.cdnGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.currentCDN = StringVar()
         self.currentCDN.set('')
 
         # 刷新类型
-        self.supportGroup = LabelFrame(self.master, text="刷新类型")
+        self.supportGroup = LabelFrame(self.master, text=u"刷新类型")
         self.supportGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.currentSupport = StringVar()
@@ -52,7 +53,7 @@ class MainFrame:
         self.currentSupportCaption.set("")
 
         # 刷新内容
-        self.contentGroup = LabelFrame(self.master, text="刷新内容")
+        self.contentGroup = LabelFrame(self.master, text=u"刷新内容")
         self.contentGroup.pack(padx=10, pady=10, fill=BOTH)
 
         self.pushContentText = Text(self.contentGroup, bg = "#ffffff", height=10)
@@ -60,7 +61,7 @@ class MainFrame:
         Label(self.contentGroup, style='tip.TLabel', textvariable=self.currentSupportCaption).pack(side=LEFT, pady = 5, padx=5)
 
         # 返回结果
-        returnGroup = LabelFrame(self.master, text="刷新结果")
+        returnGroup = LabelFrame(self.master, text=u"刷新结果")
         scrollbar = Scrollbar(returnGroup)
         scrollbar.pack(side=RIGHT, fill=Y)
         returnGroup.pack(padx=10, pady=10, fill=BOTH)
@@ -75,12 +76,12 @@ class MainFrame:
         frame = Frame(self.master)
         frame.pack()
 
-        self.pushBtn = Button(frame, text="刷新", width=20)
+        self.pushBtn = Button(frame, text=u"刷新", width=20)
         self.pushBtn.grid(row = 0,column = 1, padx = 5, pady = 10)
 
     def initMenu(self):
         menubar = Menu(self.master)
-        menubar.add_command(label="服务商设置", command=self.menuSetCDN)
+        menubar.add_command(label=u"服务商设置", command=self.menuSetCDN)
         self.master.config(menu=menubar)
 
     def menuSetCDN(self):
@@ -142,7 +143,7 @@ class MainFrame:
 
         content = [line for line in self.pushContentText.get(0.0,END).split("\n") if line.strip() != ""]
 
-        CDN = CDNFactory.get(CDNId, Config.getAccount(CDNId))
+        CDN = CDNFactory.get(CDNId, cfg.getAccount(CDNId))
 
         getattr(CDN, support)(content)
 
@@ -162,8 +163,8 @@ class MainFrame:
         
     def getValidCDN(self):
         allCDN = CDNFactory.all()
-        if len(Config.validCDN) > 0:
-            return [a for v in Config.validCDN for a in allCDN if v[0] == a['id']]
+        if len(cfg.validCDN) > 0:
+            return [a for v in cfg.validCDN for a in allCDN if v[0] == a['id']]
         else:
             return None
 
@@ -183,6 +184,8 @@ class CDNManageFrame:
         top.resizable(False, False)
         top.title(u"设置CDN服务商帐号")
         # top.iconbitmap("logo.ico")
+
+        cfg = Config()
 
         self.closeCallback = onClose
 
@@ -228,7 +231,7 @@ class CDNManageFrame:
 
         if username != '' and password != '':
             self.ok.config(state =  DISABLED)
-            Config.saveAccount(cdnId, username, password)
+            cfg.saveAccount(cdnId, username, password)
             self.ok.config(state =  ACTIVE)
 
             self.onCloseManage()
@@ -240,7 +243,7 @@ class CDNManageFrame:
 
         if index > -1:
             cdnId = allCDN[index]['id']
-            account = Config.getAccount(cdnId)
+            account = cfg.getAccount(cdnId)
             if account:
                 username = account[0]
                 password = account[1]
